@@ -1,50 +1,39 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import nim.Move
 import nim.NimViewModel
+import ui.MenuScreen
 
 @Composable
 @Preview
 fun App() {
     val state = remember { NimViewModel() }
+    var showMenuScreen by remember { mutableStateOf(true) }
     var moveDialogVisible by remember { mutableStateOf(false) }
     var selectedStack by remember { mutableIntStateOf(0) }
     MaterialTheme {
+        if (showMenuScreen) {
+            MenuScreen(modifier = Modifier.fillMaxSize()) { level, stacksCount, candiesCount ->
+                state.initGame(level, stacksCount, candiesCount)
+                showMenuScreen = false
+            }
+            return@MaterialTheme
+        }
         if (moveDialogVisible) {
-            var value by remember { mutableStateOf("") }
-            AlertDialog(
-                title = {
-                        Text("How many items do you want to remove?")
-                },
-                text = {
-                    TextField(value.toString(), onValueChange = { value = it })
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        makeMove(state.stacks, Move(stackNumber = selectedStack, size = value.toInt()))
-                        moveDialogVisible = false
-                    }) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { moveDialogVisible = false }) {
-                        Text("Cancel")
-                    }
-                },
-                onDismissRequest = { moveDialogVisible = false }
-            )
+            MoveDialog(onMoveMade = { value ->
+                makeMove(state.stacks, Move(stackNumber = selectedStack, size = value))
+                moveDialogVisible = false
+            }, onDismiss = {
+                moveDialogVisible = false
+            })
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -67,6 +56,27 @@ fun makeMove(stacks: MutableList<Int>, move: Move) {
     } else {
         stacks[move.stackNumber] -= move.size
     }
+}
+
+@Composable
+fun MoveDialog(onMoveMade: (value: Int) -> Unit, onDismiss: () -> Unit) {
+    var value by remember { mutableStateOf("") }
+    AlertDialog(title = {
+        Text("How many items do you want to remove?")
+    }, text = {
+        TextField(value, onValueChange = { value = it })
+    }, confirmButton = {
+        Button(onClick = {
+            onMoveMade(value.toInt())
+        }) {
+            Text("OK")
+        }
+    }, dismissButton = {
+        Button(onClick = onDismiss) {
+            Text("Cancel")
+        }
+    }, onDismissRequest = onDismiss
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
