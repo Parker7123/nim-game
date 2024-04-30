@@ -27,7 +27,8 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            modules("java.instrument", "jdk.unsupported")
+            targetFormats(TargetFormat.Exe)
             packageName = "nim"
             packageVersion = "1.0.0"
         }

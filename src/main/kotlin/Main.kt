@@ -11,6 +11,7 @@ import androidx.compose.ui.window.application
 import nim.Move
 import nim.NimViewModel
 import ui.MenuScreen
+import ui.PileOfDots
 
 @Composable
 @Preview
@@ -86,8 +87,15 @@ fun NimTile(count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(30.dp)
         ) {
+            PileOfDots(
+                numCircles = count,
+                diameter = 7,
+                modifier = Modifier
+                    .widthIn(150.dp, 150.dp)
+                    .heightIn(80.dp, 80.dp)
+                    .padding(10.dp)
+            )
             Text(count.toString(), fontSize = 30.sp)
         }
     }

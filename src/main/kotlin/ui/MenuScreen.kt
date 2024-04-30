@@ -1,16 +1,23 @@
 package ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import nim.Level
 
 @Composable
-fun MenuScreen(modifier: Modifier = Modifier, onLevelSelected: (level: Level, stacksCount: Int, candiesCount: Int) -> Unit) {
+fun MenuScreen(
+    modifier: Modifier = Modifier,
+    onLevelSelected: (level: Level, stacksCount: Int, candiesCount: Int) -> Unit
+) {
     var showSettings by remember { mutableStateOf(false) }
     var selectedLevel by remember { mutableStateOf(Level.EASY) }
     CenterColumn(modifier) {
@@ -53,7 +60,8 @@ fun SettingsSection(modifier: Modifier = Modifier, onPlay: (stacksCount: Int, nu
             numberOfCandies.toString(),
             onValueChange = { numberOfCandies = it.toInt() },
             label = { Text("Number of candies") },
-            modifier = Modifier.padding(bottom = 20.dp))
+            modifier = Modifier.padding(bottom = 20.dp)
+        )
         Button(onClick = { onPlay(stacksCount, numberOfCandies) }, modifier = Modifier.fillMaxWidth()) {
             Text("Play")
         }
