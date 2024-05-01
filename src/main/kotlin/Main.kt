@@ -96,6 +96,7 @@ fun NimTile(
     }
 }
 
+@Composable
 @OptIn(ExperimentalMaterialApi::class)
 private fun TextInputWithTwoIcons(inputValue: String, onAccept: (Int) -> Unit, onDismiss: () -> Unit) {
     var inputValue1 = inputValue
