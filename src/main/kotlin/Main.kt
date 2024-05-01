@@ -1,15 +1,27 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import nim.Move
 import nim.NimViewModel
+import ui.CenterColumn
 import ui.MenuScreen
 import ui.PileOfDots
 
@@ -18,8 +30,7 @@ import ui.PileOfDots
 fun App() {
     val state = remember { NimViewModel() }
     var showMenuScreen by remember { mutableStateOf(true) }
-    var moveDialogVisible by remember { mutableStateOf(false) }
-    var selectedStack by remember { mutableIntStateOf(0) }
+    var selectedStack by remember { mutableIntStateOf(-1) }
     MaterialTheme {
         if (showMenuScreen) {
             MenuScreen(modifier = Modifier.fillMaxSize()) { level, stacksCount, candiesCount ->
@@ -28,24 +39,24 @@ fun App() {
             }
             return@MaterialTheme
         }
-        if (moveDialogVisible) {
-            MoveDialog(onMoveMade = { value ->
-                makeMove(state.stacks, Move(stackNumber = selectedStack, size = value))
-                moveDialogVisible = false
-            }, onDismiss = {
-                moveDialogVisible = false
-            })
-        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
             state.stacks.forEachIndexed { i, stack ->
-                NimTile(stack, modifier = Modifier.padding(start = 15.dp, end = 15.dp), onClick = {
-                    moveDialogVisible = true
-                    selectedStack = i
-                })
+                NimTile(count = stack,
+                    inputVisible = selectedStack == i,
+                    modifier = Modifier.heightIn(min = 200.dp, max = 200.dp).padding(start = 15.dp, end = 15.dp),
+                    onClick = {
+                        selectedStack = i
+                    },
+                    onAccept = {
+                        makeMove(state.stacks, Move(stackNumber = i, size = it))
+                        selectedStack = -1
+                    },
+                    onDismiss = { selectedStack = -1 })
             }
         }
     }
@@ -59,45 +70,66 @@ fun makeMove(stacks: MutableList<Int>, move: Move) {
     }
 }
 
-@Composable
-fun MoveDialog(onMoveMade: (value: Int) -> Unit, onDismiss: () -> Unit) {
-    var value by remember { mutableStateOf("") }
-    AlertDialog(title = {
-        Text("How many items do you want to remove?")
-    }, text = {
-        TextField(value, onValueChange = { value = it })
-    }, confirmButton = {
-        Button(onClick = {
-            onMoveMade(value.toInt())
-        }) {
-            Text("OK")
-        }
-    }, dismissButton = {
-        Button(onClick = onDismiss) {
-            Text("Cancel")
-        }
-    }, onDismissRequest = onDismiss
-    )
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun NimTile(count: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier, onClick = onClick) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+fun NimTile(
+    count: Int,
+    inputVisible: Boolean,
+    onClick: () -> Unit,
+    onAccept: (Int) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) = Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+    var inputValue by remember { mutableStateOf("") }
+    Card(onClick = onClick) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             PileOfDots(
                 numCircles = count,
                 diameter = 7,
-                modifier = Modifier
-                    .widthIn(150.dp, 150.dp)
-                    .heightIn(80.dp, 80.dp)
-                    .padding(10.dp)
+                modifier = Modifier.widthIn(150.dp, 150.dp).heightIn(80.dp, 80.dp).padding(10.dp)
             )
             Text(count.toString(), fontSize = 30.sp)
         }
+    }
+    if (inputVisible) {
+        TextInputWithTwoIcons(inputValue, onAccept, onDismiss)
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+private fun TextInputWithTwoIcons(inputValue: String, onAccept: (Int) -> Unit, onDismiss: () -> Unit) {
+    var inputValue1 = inputValue
+    val interactionSource = remember { MutableInteractionSource() }
+    BasicTextField(
+        value = inputValue1,
+        onValueChange = { inputValue1 = it },
+        Modifier.width(150.dp).height(35.dp),
+        singleLine = true,
+        interactionSource = interactionSource
+    ) { innerTextField ->
+        TextFieldDefaults.OutlinedTextFieldDecorationBox(
+            value = inputValue1,
+            innerTextField = innerTextField,
+            enabled = true,
+            singleLine = true,
+            visualTransformation = VisualTransformation.None,
+            interactionSource = interactionSource,
+            trailingIcon = {
+                Row {
+                    Icon(Icons.Filled.Done, "contentDescription", modifier = Modifier.clickable {
+                        onAccept(inputValue1.toInt())
+                        inputValue1 = ""
+                    }.padding(end = 5.dp))
+                    Icon(Icons.Filled.Close, "contentDescription", modifier = Modifier.clickable {
+                        onDismiss()
+                        inputValue1 = ""
+                    })
+                }
+            },
+            contentPadding = TextFieldDefaults.textFieldWithoutLabelPadding(
+                top = 0.dp, bottom = 0.dp
+            )
+        )
     }
 }
 
