@@ -1,19 +1,15 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +17,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import nim.Move
 import nim.NimViewModel
-import ui.CenterColumn
 import ui.MenuScreen
 import ui.PileOfDots
 
@@ -80,7 +75,6 @@ fun NimTile(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-    var inputValue by remember { mutableStateOf("") }
     Card(onClick = onClick) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             PileOfDots(
@@ -92,24 +86,24 @@ fun NimTile(
         }
     }
     if (inputVisible) {
-        TextInputWithTwoIcons(inputValue, onAccept, onDismiss)
+        TextInputWithTwoIcons(onAccept, onDismiss)
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
-private fun TextInputWithTwoIcons(inputValue: String, onAccept: (Int) -> Unit, onDismiss: () -> Unit) {
-    var inputValue1 = inputValue
+private fun TextInputWithTwoIcons(onAccept: (Int) -> Unit, onDismiss: () -> Unit) {
+    var inputValue by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
     BasicTextField(
-        value = inputValue1,
-        onValueChange = { inputValue1 = it },
+        value = inputValue,
+        onValueChange = { inputValue = it },
         Modifier.width(150.dp).height(35.dp),
         singleLine = true,
         interactionSource = interactionSource
     ) { innerTextField ->
         TextFieldDefaults.OutlinedTextFieldDecorationBox(
-            value = inputValue1,
+            value = inputValue,
             innerTextField = innerTextField,
             enabled = true,
             singleLine = true,
@@ -118,12 +112,12 @@ private fun TextInputWithTwoIcons(inputValue: String, onAccept: (Int) -> Unit, o
             trailingIcon = {
                 Row {
                     Icon(Icons.Filled.Done, "contentDescription", modifier = Modifier.clickable {
-                        onAccept(inputValue1.toInt())
-                        inputValue1 = ""
+                        onAccept(inputValue.toInt())
+                        inputValue = ""
                     }.padding(end = 5.dp))
                     Icon(Icons.Filled.Close, "contentDescription", modifier = Modifier.clickable {
                         onDismiss()
-                        inputValue1 = ""
+                        inputValue = ""
                     })
                 }
             },
