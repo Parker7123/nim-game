@@ -48,20 +48,12 @@ fun App() {
                         selectedStack = i
                     },
                     onAccept = {
-                        makeMove(state.stacks, Move(stackNumber = i, size = it))
+                        state.makePlayerMove(Move(stackNumber = i, size = it))
                         selectedStack = -1
                     },
                     onDismiss = { selectedStack = -1 })
             }
         }
-    }
-}
-
-fun makeMove(stacks: MutableList<Int>, move: Move) {
-    if (stacks[move.stackNumber] == move.size) {
-        stacks.removeAt(move.stackNumber)
-    } else {
-        stacks[move.stackNumber] -= move.size
     }
 }
 
