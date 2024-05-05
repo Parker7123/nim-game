@@ -1,3 +1,3 @@
 package nim
 
-enum class Player { PLAYER_ONE, PLAYER_TWO, COMPUTER }
+enum class Player(val label: String) { PLAYER_ONE("Player One"), PLAYER_TWO("Player Two"), COMPUTER("Computer") }

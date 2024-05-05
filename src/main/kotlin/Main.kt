@@ -17,6 +17,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import nim.Move
 import nim.NimViewModel
+import nim.Player
 import ui.MenuScreen
 import ui.PileOfDots
 
@@ -24,6 +25,8 @@ import ui.PileOfDots
 @Preview
 fun App() {
     val state = remember { NimViewModel() }
+    val player = state.player.collectAsState()
+    val gameOver = state.gameOver.collectAsState()
     var showMenuScreen by remember { mutableStateOf(true) }
     var selectedStack by remember { mutableIntStateOf(-1) }
     MaterialTheme {
@@ -34,24 +37,42 @@ fun App() {
             }
             return@MaterialTheme
         }
+        if (gameOver.value) {
+            GameOverModal(player = player.value,
+                onRestart = {
+                    state.restart()
+                },
+                onDismiss = {
+                    state.restart()
+                    showMenuScreen = true
+                }
+            )
+        }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            state.stacks.forEachIndexed { i, stack ->
-                NimTile(count = stack,
-                    inputVisible = selectedStack == i,
-                    modifier = Modifier.heightIn(min = 200.dp, max = 200.dp).padding(start = 15.dp, end = 15.dp),
-                    onClick = {
-                        selectedStack = i
-                    },
-                    onAccept = {
-                        state.makePlayerMove(Move(stackNumber = i, size = it))
-                        selectedStack = -1
-                    },
-                    onDismiss = { selectedStack = -1 })
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                player.value.label + " moves",
+                modifier = Modifier.align(Alignment.Start).padding(10.dp),
+                style = MaterialTheme.typography.h4
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                state.stacks.forEachIndexed { i, stack ->
+                    NimTile(count = stack,
+                        inputVisible = selectedStack == i,
+                        modifier = Modifier.heightIn(min = 200.dp, max = 200.dp).padding(start = 15.dp, end = 15.dp),
+                        onClick = {
+                            selectedStack = i
+                        },
+                        onAccept = {
+                            state.makePlayerMove(Move(stackNumber = i, size = it))
+                            selectedStack = -1
+                        },
+                        onDismiss = { selectedStack = -1 })
+                }
             }
         }
     }
@@ -118,6 +139,27 @@ private fun TextInputWithTwoIcons(onAccept: (Int) -> Unit, onDismiss: () -> Unit
             )
         )
     }
+}
+
+@Composable
+private fun GameOverModal(player: Player, onDismiss: () -> Unit, onRestart: () -> Unit, modifier: Modifier = Modifier) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = {
+            Text(player.label + " won! ")
+        },
+        confirmButton = {
+            Button(onClick = onRestart) {
+                Text("Restart")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Main menu")
+            }
+        }
+    )
 }
 
 fun main() = application {
