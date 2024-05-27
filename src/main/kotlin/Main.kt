@@ -88,6 +88,7 @@ fun NimTile(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) = Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+    var error by remember { mutableStateOf<String?>(null) }
     Card(onClick = onClick) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             PileOfDots(
@@ -99,13 +100,29 @@ fun NimTile(
         }
     }
     if (inputVisible) {
-        TextInputWithTwoIcons(onAccept, onDismiss)
+        DisposableEffect(inputVisible) {
+            onDispose { error = null }
+        }
+        TextInputWithTwoIcons(
+            onAccept = { num ->
+                onAccept(num)
+            },
+            onDismiss = {
+                onDismiss()
+            },
+            onError = { err ->
+                error = err
+            }
+        )
+        error?.let {
+            Text(it)
+        }
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
-private fun TextInputWithTwoIcons(onAccept: (Int) -> Unit, onDismiss: () -> Unit) {
+private fun TextInputWithTwoIcons(onAccept: (Int) -> Unit, onDismiss: () -> Unit, onError: (String) -> Unit) {
     var inputValue by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
     BasicTextField(
@@ -125,8 +142,15 @@ private fun TextInputWithTwoIcons(onAccept: (Int) -> Unit, onDismiss: () -> Unit
             trailingIcon = {
                 Row {
                     Icon(Icons.Filled.Done, "contentDescription", modifier = Modifier.clickable {
-                        onAccept(inputValue.toInt())
-                        inputValue = ""
+                        val intValue = inputValue.toIntOrNull()
+                        intValue?.let { num ->
+                            if (num > 0) {
+                                onAccept(num)
+                                inputValue = ""
+                            } else {
+                                onError("Number must be greater than 0.")
+                            }
+                        } ?: onError("Please input valid number.")
                     }.padding(end = 5.dp))
                     Icon(Icons.Filled.Close, "contentDescription", modifier = Modifier.clickable {
                         onDismiss()

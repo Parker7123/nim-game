@@ -11,7 +11,7 @@ import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
-class NimViewModel(val computation: NimComputation = RandomNimComputation()) {
+class NimViewModel(val computation: NimComputation = NimComputationImpl()) {
     val stacks: SnapshotStateList<Int> = mutableStateListOf(10, 20, 30)
     private var _player: MutableStateFlow<Player> = MutableStateFlow(PLAYER_ONE)
     val player = _player.asStateFlow()
