@@ -10,4 +10,4 @@ interface NimComputation {
 
 data class Move(val stackNumber: Int, val size: Int)
 
-enum class Level(val text: String) { EASY("EASY"), MEDIUM("MEDIUM"), HARD("HARD"), TWO_PLAYERS("TWO PLAYERS")}
+enum class Level(val text: String) { EASY("EASY"), MEDIUM("MEDIUM"), HARD("HARD"), INSANE("INSANE"), TWO_PLAYERS("TWO PLAYERS")}

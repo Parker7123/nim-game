@@ -115,7 +115,7 @@ fun NimTile(
             }
         )
         error?.let {
-            Text(it)
+            Text(it, style = MaterialTheme.typography.caption)
         }
     }
 }

@@ -33,7 +33,8 @@ class NimComputationImpl : NimComputation {
         return when {
             level == EASY && perfectMoveRatio < 0.3 -> makePerfectMove(stacks, nimSum)
             level == MEDIUM && perfectMoveRatio < 0.6 -> makePerfectMove(stacks, nimSum)
-            level == HARD && perfectMoveRatio < 1.0 -> makePerfectMove(stacks, nimSum)
+            level == HARD && perfectMoveRatio < 0.9 -> makePerfectMove(stacks, nimSum)
+            level == HARD -> makePerfectMove(stacks, nimSum)
             else -> makeRandomMove(stacks)
         }
     }
