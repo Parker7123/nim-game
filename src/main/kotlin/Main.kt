@@ -7,9 +7,11 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -187,7 +189,7 @@ private fun GameOverModal(player: Player, onDismiss: () -> Unit, onRestart: () -
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(title = "Nim", onCloseRequest = ::exitApplication) {
         App()
     }
 }
