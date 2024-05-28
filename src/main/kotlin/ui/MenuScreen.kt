@@ -49,20 +49,20 @@ fun Title(modifier: Modifier = Modifier) {
 
 @Composable
 fun SettingsSection(modifier: Modifier = Modifier, onPlay: (stacksCount: Int, numOfCandies: Int) -> Unit) {
-    var stacksCount by remember { mutableIntStateOf(3) }
-    var numberOfCandies by remember { mutableIntStateOf(30) }
+    var stacksCount by remember { mutableStateOf("3") }
+    var numberOfCandies by remember { mutableStateOf("30") }
     CenterColumn(modifier = modifier) {
         OutlinedTextField(
             stacksCount.toString(),
-            onValueChange = { stacksCount = it.toInt() },
+            onValueChange = { stacksCount = it },
             label = { Text("Number of stacks") })
         OutlinedTextField(
             numberOfCandies.toString(),
-            onValueChange = { numberOfCandies = it.toInt() },
+            onValueChange = { numberOfCandies = it },
             label = { Text("Number of candies") },
             modifier = Modifier.padding(bottom = 20.dp)
         )
-        Button(onClick = { onPlay(stacksCount, numberOfCandies) }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { onPlay(stacksCount.toInt(), numberOfCandies.toInt()) }, modifier = Modifier.fillMaxWidth()) {
             Text("Play")
         }
     }
